@@ -29,6 +29,8 @@ public class TeleOpTest extends LinearOpMode {
 
         DcMotor arm = null;
 
+        DcMotor push = null;
+
         leftMotorFront = hardwareMap.dcMotor.get("left_drive_front");
         leftMotorBack = hardwareMap.dcMotor.get("left_drive_back");
 
@@ -36,6 +38,13 @@ public class TeleOpTest extends LinearOpMode {
         rightMotorBack = hardwareMap.dcMotor.get("right_drive_back");
 
         arm = hardwareMap.dcMotor.get("arm");
+
+        push = hardwareMap.dcMotor.get("push");
+
+        rightMotorFront.setDirection(DcMotor.Direction.REVERSE);
+        rightMotorBack.setDirection(DcMotor.Direction.REVERSE);
+        leftMotorFront.setDirection(DcMotor.Direction.REVERSE);
+        leftMotorBack.setDirection(DcMotor.Direction.REVERSE);
 
         waitForStart();
         runtime.reset();
@@ -127,6 +136,16 @@ public class TeleOpTest extends LinearOpMode {
             }
             else {
                 arm.setPower(0);
+            }
+
+            if(gamepad1.a || gamepad2.a) {
+                push.setPower(1);
+            }
+            else if (gamepad1.b || gamepad2.b) {
+                push.setPower(-1);
+            }
+            else {
+                push.setPower(0);
             }
         }
     }
