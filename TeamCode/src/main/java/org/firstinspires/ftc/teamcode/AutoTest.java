@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.*;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -11,8 +11,8 @@ import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import java.lang.Math;
 
-@TeleOp(name="autoTesting", group="Autonomous")
-public class Autonomous extends LinearOpMode {
+@Autonomous(name="SmackDown", group="Autonomous")
+public class AutoTest extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -74,5 +74,14 @@ public class Autonomous extends LinearOpMode {
         leftMotorBack.setPower(0);
         rightMotorFront.setPower(0);
         rightMotorBack.setPower(0);
+
+        sleep(1000);
+
+        push.setPower(-.25);
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < .2)) {
+            telemetry.addLine("Pushing block off");
+        }
+        push.setPower(0);
     }
 }

@@ -3,17 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import java.lang.Math;
 
-@TeleOp(name="TeleOp", group="TeleOp")
-public class TeleOpTest extends LinearOpMode {
+@TeleOp(name="SavingPrivateTeleOp", group="TeleOp")
+public class SavingPrivateTeleOp extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -58,63 +51,64 @@ public class TeleOpTest extends LinearOpMode {
 
             //Stuff to display for Telemetry
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Left Front", "Ticks: " + leftMotorFront.getCurrentPosition());
-            telemetry.addData("Left Back", "Ticks: " + leftMotorBack.getCurrentPosition());
-            telemetry.addData("Right Front", "Ticks: " + rightMotorFront.getCurrentPosition());
-            telemetry.addData("Right Back", "Ticks: " + rightMotorBack.getCurrentPosition());
+            telemetry.addData("Right Trigger", gamepad1.right_trigger);
+            telemetry.addData("Left Front", "Power: " + leftMotorFront.getPower());
+            telemetry.addData("Left Back", "Power: " + leftMotorBack.getPower());
+            telemetry.addData("Right Front", "Power: " + rightMotorFront.getPower());
+            telemetry.addData("Right Back", "Power: " + rightMotorBack.getPower());
             telemetry.update();
 
             //Forward and backward moving method
-            if(gamepad1.left_stick_y != 0 && gamepad1.left_stick_x == 0 && gamepad1.right_stick_x == 0) {
+            if(gamepad1.left_stick_y != 0 && gamepad1.left_stick_x == 0 && gamepad1.right_stick_x == 0 && gamepad1.right_trigger == 0) {
                 rightMotorFront.setPower(-gamepad1.left_stick_y);
                 rightMotorBack.setPower(-gamepad1.left_stick_y);
 
                 leftMotorFront.setPower(gamepad1.left_stick_y);
                 leftMotorBack.setPower(gamepad1.left_stick_y);
             }
-            else if(gamepad1.left_stick_y < 0 && gamepad1.left_stick_x > 0 && gamepad1.right_stick_x == 0) {
+            else if(gamepad1.left_stick_y < 0 && gamepad1.left_stick_x > 0 && gamepad1.right_stick_x == 0 && gamepad1.right_trigger == 0) {
                 rightMotorFront.setPower(-gamepad1.left_stick_y - Math.abs(gamepad1.left_stick_x));
                 rightMotorBack.setPower(-gamepad1.left_stick_y);
 
                 leftMotorFront.setPower(gamepad1.left_stick_y);
                 leftMotorBack.setPower(gamepad1.left_stick_y + Math.abs(gamepad1.left_stick_x));
             }
-            else if (gamepad1.left_stick_y == 0 && gamepad1.left_stick_x != 0 && gamepad1.right_stick_x == 0) {
+            else if (gamepad1.left_stick_y == 0 && gamepad1.left_stick_x != 0 && gamepad1.right_stick_x == 0 && gamepad1.right_trigger == 0) {
                 leftMotorFront.setPower(-gamepad1.left_stick_x);
                 rightMotorFront.setPower(-gamepad1.left_stick_x);
 
                 leftMotorBack.setPower(gamepad1.left_stick_x);
                 rightMotorBack.setPower(gamepad1.left_stick_x);
             }
-            else if(gamepad1.left_stick_y > 0 && gamepad1.left_stick_x > 0 && gamepad1.right_stick_x == 0) {
+            else if(gamepad1.left_stick_y > 0 && gamepad1.left_stick_x > 0 && gamepad1.right_stick_x == 0 && gamepad1.right_trigger == 0) {
                 rightMotorFront.setPower(-gamepad1.left_stick_y);
                 rightMotorBack.setPower(-gamepad1.left_stick_y + Math.abs(gamepad1.left_stick_x));
 
                 leftMotorFront.setPower(gamepad1.left_stick_y - Math.abs(gamepad1.left_stick_x));
                 leftMotorBack.setPower(gamepad1.left_stick_y);
             }
-            else if(gamepad1.left_stick_y > 0 && gamepad1.left_stick_x < 0 && gamepad1.right_stick_x == 0) {
+            else if(gamepad1.left_stick_y > 0 && gamepad1.left_stick_x < 0 && gamepad1.right_stick_x == 0 && gamepad1.right_trigger == 0) {
                 rightMotorFront.setPower(-gamepad1.left_stick_y + Math.abs(gamepad1.left_stick_x));
                 rightMotorBack.setPower(-gamepad1.left_stick_y);
 
                 leftMotorFront.setPower(gamepad1.left_stick_y);
                 leftMotorBack.setPower(gamepad1.left_stick_y - Math.abs(gamepad1.left_stick_x));
             }
-            else if(gamepad1.left_stick_y < 0 && gamepad1.left_stick_x < 0 && gamepad1.right_stick_x == 0) {
+            else if(gamepad1.left_stick_y < 0 && gamepad1.left_stick_x < 0 && gamepad1.right_stick_x == 0 && gamepad1.right_trigger == 0) {
                 rightMotorFront.setPower(-gamepad1.left_stick_y);
                 rightMotorBack.setPower(-gamepad1.left_stick_y - Math.abs(gamepad1.left_stick_x));
 
                 leftMotorFront.setPower(gamepad1.left_stick_y + Math.abs(gamepad1.left_stick_x));
                 leftMotorBack.setPower(gamepad1.left_stick_y);
             }
-            else if (gamepad1.left_stick_y !=0  && gamepad1.right_stick_x > 0) {
+            else if (gamepad1.left_stick_y !=0  && gamepad1.right_stick_x > 0 && gamepad1.right_trigger == 0) {
                 leftMotorFront.setPower(gamepad1.left_stick_y);
                 leftMotorBack.setPower(gamepad1.left_stick_y);
 
                 rightMotorFront.setPower(0);
                 rightMotorBack.setPower(0);
             }
-            else if (gamepad1.left_stick_y != 0 && gamepad1.right_stick_x < 0) {
+            else if (gamepad1.left_stick_y != 0 && gamepad1.right_stick_x < 0 && gamepad1.right_trigger == 0) {
                 leftMotorFront.setPower(0);
                 leftMotorBack.setPower(0);
 
@@ -135,6 +129,69 @@ public class TeleOpTest extends LinearOpMode {
                 rightMotorFront.setPower(-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x));
                 rightMotorBack.setPower(-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x));
             }
+            else if (gamepad1.left_stick_y != 0 && gamepad1.left_stick_x == 0 && gamepad1.right_stick_x == 0 && gamepad1.right_trigger != 0) {
+                rightMotorFront.setPower(gamepad1.left_stick_y);
+                rightMotorBack.setPower(gamepad1.left_stick_y);
+
+                leftMotorFront.setPower(-gamepad1.left_stick_y);
+                leftMotorBack.setPower(-gamepad1.left_stick_y);
+            }
+            else if(gamepad1.left_stick_y < 0 && gamepad1.left_stick_x > 0 && gamepad1.right_stick_x == 0 && gamepad1.right_trigger != 0) {
+
+                rightMotorFront.setPower(-gamepad1.left_stick_y + Math.abs(gamepad1.left_stick_x));
+                rightMotorBack.setPower(-gamepad1.left_stick_y);
+
+                leftMotorFront.setPower(gamepad1.left_stick_y);
+                leftMotorBack.setPower(gamepad1.left_stick_y - Math.abs(gamepad1.left_stick_x));
+            }
+            else if (gamepad1.left_stick_y == 0 && gamepad1.left_stick_x != 0 && gamepad1.right_stick_x == 0 && gamepad1.right_trigger != 0) {
+
+                leftMotorFront.setPower(gamepad1.left_stick_x);
+                rightMotorFront.setPower(gamepad1.left_stick_x);
+
+                leftMotorBack.setPower(-gamepad1.left_stick_x);
+                rightMotorBack.setPower(-gamepad1.left_stick_x);
+            }
+            else if(gamepad1.left_stick_y > 0 && gamepad1.left_stick_x > 0 && gamepad1.right_stick_x == 0 && gamepad1.right_trigger != 0) {
+                rightMotorFront.setPower(-gamepad1.left_stick_y);
+                rightMotorBack.setPower(-gamepad1.left_stick_y - Math.abs(gamepad1.left_stick_x));
+
+                leftMotorFront.setPower(gamepad1.left_stick_y + Math.abs(gamepad1.left_stick_x));
+                leftMotorBack.setPower(gamepad1.left_stick_y);
+
+            }
+            else if(gamepad1.left_stick_y > 0 && gamepad1.left_stick_x < 0 && gamepad1.right_stick_x == 0 && gamepad1.right_trigger != 0) {
+
+                rightMotorFront.setPower(-gamepad1.left_stick_y - Math.abs(gamepad1.left_stick_x));
+                rightMotorBack.setPower(-gamepad1.left_stick_y);
+
+                leftMotorFront.setPower(gamepad1.left_stick_y);
+                leftMotorBack.setPower(gamepad1.left_stick_y + Math.abs(gamepad1.left_stick_x));
+            }
+            else if(gamepad1.left_stick_y < 0 && gamepad1.left_stick_x < 0 && gamepad1.right_stick_x == 0 && gamepad1.right_trigger != 0) {
+
+                rightMotorFront.setPower(-gamepad1.left_stick_y);
+                rightMotorBack.setPower(-gamepad1.left_stick_y + Math.abs(gamepad1.left_stick_x));
+
+                leftMotorFront.setPower(gamepad1.left_stick_y - Math.abs(gamepad1.left_stick_x));
+                leftMotorBack.setPower(gamepad1.left_stick_y);
+            }
+            else if (gamepad1.left_stick_y !=0  && gamepad1.right_stick_x > 0 && gamepad1.right_trigger != 0) {
+
+                leftMotorFront.setPower(0);
+                leftMotorBack.setPower(0);
+
+                rightMotorFront.setPower(-gamepad1.left_stick_y);
+                rightMotorBack.setPower(-gamepad1.left_stick_y);
+            }
+            else if (gamepad1.left_stick_y != 0 && gamepad1.right_stick_x < 0 && gamepad1.right_trigger != 0) {
+
+                leftMotorFront.setPower(gamepad1.left_stick_y);
+                leftMotorBack.setPower(gamepad1.left_stick_y);
+
+                rightMotorFront.setPower(0);
+                rightMotorBack.setPower(0);
+            }
             else {
                 leftMotorFront.setPower(0);
                 leftMotorBack.setPower(0);
@@ -142,28 +199,6 @@ public class TeleOpTest extends LinearOpMode {
                 rightMotorBack.setPower(0);
             }
 
-            if(gamepad1.dpad_up || gamepad2.dpad_up) {
-                arm.setPower(-1);
-                armtwo.setPower(-1);
-            }
-            else if (gamepad1.dpad_down || gamepad2.dpad_down) {
-                arm.setPower(1);
-                armtwo.setPower(1);
-            }
-            else {
-                arm.setPower(0);
-                armtwo.setPower(0);
-            }
-
-            if(gamepad2.a) {
-                push.setPower(.25);
-            }
-            else if (gamepad2.b) {
-                push.setPower(-.25);
-            }
-            else {
-                push.setPower(0);
-            }
         }
     }
 }
