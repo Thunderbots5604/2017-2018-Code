@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import java.lang.Math;
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="TimeAutonomous", group="Autonomous")
+@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="DriveOffRampTimeAutonomous", group="Autonomous")
 public class Autonomous extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();

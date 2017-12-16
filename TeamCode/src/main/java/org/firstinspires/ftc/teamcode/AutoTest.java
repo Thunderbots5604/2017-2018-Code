@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import java.lang.Math;
 
-@Autonomous(name="SpitOut", group="Autonomous")
+@Autonomous(name="SpitOutTimeAutonomous", group="Autonomous")
 public class AutoTest extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
