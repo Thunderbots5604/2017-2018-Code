@@ -1,18 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import java.lang.Math;
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="TimeAutonomous", group="Autonomous")
-public class Autonomous extends LinearOpMode {
+@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="GyroAutonomous", group="Autonomous")
+public class AutoGyro extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -27,26 +25,41 @@ public class Autonomous extends LinearOpMode {
         DcMotor rightMotorFront = null;
         DcMotor rightMotorBack = null;
 
+        DcMotor arm = null;
+
+        CRServo spinleft = null;
+        CRServo spinright = null;
+
+        OpticalDistanceSensor ods = null;
+        GyroSensor gyro = null;
+        TouchSensor touch = null;
+        UltrasonicSensor ultra = null;
+
         leftMotorFront = hardwareMap.dcMotor.get("left_drive_front");
         leftMotorBack = hardwareMap.dcMotor.get("left_drive_back");
 
         rightMotorFront = hardwareMap.dcMotor.get("right_drive_front");
         rightMotorBack = hardwareMap.dcMotor.get("right_drive_back");
 
-        rightMotorFront.setDirection(DcMotor.Direction.REVERSE);
-        rightMotorBack.setDirection(DcMotor.Direction.REVERSE);
-        leftMotorFront.setDirection(DcMotor.Direction.REVERSE);
-        leftMotorBack.setDirection(DcMotor.Direction.REVERSE);
+        arm = hardwareMap.dcMotor.get("arm");
 
-/*        leftMotorFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotorBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotorFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotorBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        spinleft = hardwareMap.crservo.get("spinleft");
+        spinright = hardwareMap.crservo.get("spinright");
 
-        leftMotorFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftMotorBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotorFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotorBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);*/
+        ods = hardwareMap.opticalDistanceSensor.get("ods");
+        gyro = hardwareMap.gyroSensor.get("gyro");
+        touch = hardwareMap.touchSensor.get("touch");
+        ultra = hardwareMap.ultrasonicSensor.get("ultra");
+
+        runtime.reset();
+        gyro.calibrate();
+
+        while(gyro.isCalibrating() || runtime.seconds() < 35) {
+            telemetry.addLine("Gyro is calibrating");
+            telemetry.update();
+        }
+
+        telemetry.addLine("Gyro has calibrated (maybe?)");
 
         waitForStart();
         runtime.reset();

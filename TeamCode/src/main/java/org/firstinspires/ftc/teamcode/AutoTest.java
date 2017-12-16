@@ -1,17 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.*;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import java.lang.Math;
 
-@Autonomous(name="SmackDown", group="Autonomous")
+@Autonomous(name="SpitOut", group="Autonomous")
 public class AutoTest extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -27,19 +28,14 @@ public class AutoTest extends LinearOpMode {
         DcMotor rightMotorFront = null;
         DcMotor rightMotorBack = null;
 
-        DcMotor arm = null;
-
-        DcMotor push = null;
+        CRServo spinleft = null;
+        CRServo spinright = null;
 
         leftMotorFront = hardwareMap.dcMotor.get("left_drive_front");
         leftMotorBack = hardwareMap.dcMotor.get("left_drive_back");
 
         rightMotorFront = hardwareMap.dcMotor.get("right_drive_front");
         rightMotorBack = hardwareMap.dcMotor.get("right_drive_back");
-
-        arm = hardwareMap.dcMotor.get("arm");
-
-        push = hardwareMap.dcMotor.get("push");
 
         rightMotorFront.setDirection(DcMotor.Direction.REVERSE);
         rightMotorBack.setDirection(DcMotor.Direction.REVERSE);
@@ -56,6 +52,9 @@ public class AutoTest extends LinearOpMode {
         rightMotorFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotorBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);*/
 
+        spinleft = hardwareMap.crservo.get("spinleft");
+        spinright = hardwareMap.crservo.get("spinright");
+
         waitForStart();
         runtime.reset();
 
@@ -64,7 +63,7 @@ public class AutoTest extends LinearOpMode {
         leftMotorFront.setPower(-.5);
         leftMotorBack.setPower(-.5);
         runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < 1.0)) {
+        while (opModeIsActive() && (runtime.seconds() < .95)) {
             telemetry.addLine("Moving forward");
             telemetry.update();
         }
@@ -77,11 +76,34 @@ public class AutoTest extends LinearOpMode {
 
         sleep(1000);
 
-        push.setPower(-.25);
+        spinleft.setPower(1.0);
+        spinright.setPower(-1.0);
+        rightMotorFront.setPower(-.5);
+        rightMotorBack.setPower(-.5);
+        leftMotorFront.setPower(.5);
+        leftMotorBack.setPower(.5);
         runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < .2)) {
-            telemetry.addLine("Pushing block off");
+        while (opModeIsActive() && (runtime.seconds() < .1)) {
+            telemetry.addLine("Spin Out");
+            telemetry.update();
         }
-        push.setPower(0);
+        leftMotorFront.setPower(0);
+        leftMotorBack.setPower(0);
+        rightMotorFront.setPower(0);
+        rightMotorBack.setPower(0);
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < .4)) {
+            telemetry.addLine("Just keep spinning");
+            telemetry.update();
+        }
+
+        spinleft.setPower(0);
+        spinright.setPower(0);
+
+        telemetry.addLine("Done ;)");
+        telemetry.update();
+
+
+        sleep(1000);
     }
 }
