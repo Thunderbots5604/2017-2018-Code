@@ -21,11 +21,21 @@ import java.lang.Math;
 public class TeleOpTest extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
+    private ElapsedTime flipTime = new ElapsedTime();
+    private ElapsedTime blockTime = new ElapsedTime();
 
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+
+        double blockLeftInit = .75;
+        double blockRightInit = .25;
+
+        boolean flip = false;
+        boolean block = false;
+
+        boolean hunter = false;
 
         DcMotor leftMotorFront = null;
         DcMotor leftMotorBack = null;
@@ -33,19 +43,21 @@ public class TeleOpTest extends LinearOpMode {
         DcMotor rightMotorFront = null;
         DcMotor rightMotorBack = null;
 
-        DcMotor arm = null;
+        DcMotor relicarm = null;
+        DcMotor blockarm = null;
 
         Servo lever = null;
         Servo hit = null;
 
-        CRServo spinleft = null;
-        CRServo spinright = null;
+        Servo flipblock = null;
+        Servo blockright = null;
+        Servo blockleft = null;
 
-        OpticalDistanceSensor ods = null;/*
-        Gyroscope gyro = null;*/
+        OpticalDistanceSensor ods = null;
+        /*
+        Gyroscope gyro = null;*//*
         TouchSensor touch = null;
-        UltrasonicSensor ultra = null;
-        ColorSensor color = null;
+        ColorSensor color = null;*/
 
         leftMotorFront = hardwareMap.dcMotor.get("left_drive_front");
         leftMotorBack = hardwareMap.dcMotor.get("left_drive_back");
@@ -53,35 +65,40 @@ public class TeleOpTest extends LinearOpMode {
         rightMotorFront = hardwareMap.dcMotor.get("right_drive_front");
         rightMotorBack = hardwareMap.dcMotor.get("right_drive_back");
 
-        arm = hardwareMap.dcMotor.get("arm");
-
-        spinleft = hardwareMap.crservo.get("spinleft");
-        spinright = hardwareMap.crservo.get("spinright");
+        blockarm = hardwareMap.dcMotor.get("block_arm");
+        relicarm = hardwareMap.dcMotor.get("relic_arm");
 
         ods = hardwareMap.opticalDistanceSensor.get("ods");
-/*        gyro = hardwareMap.gyroScope.get("gyro");*/
+/*        gyro = hardwareMap.gyroScope.get("gyro");
         touch = hardwareMap.touchSensor.get("touch");
         ultra = hardwareMap.ultrasonicSensor.get("ultra");
-        color = hardwareMap.colorSensor.get("color");
+        color = hardwareMap.colorSensor.get("color"); */
 
         lever = hardwareMap.servo.get("lever");
         hit = hardwareMap.servo.get("hit");
+        flipblock = hardwareMap.servo.get("flip_block");
+        blockright = hardwareMap.servo.get("block_right");
+        blockleft = hardwareMap.servo.get("block_left");
 
 
         rightMotorFront.setDirection(DcMotor.Direction.REVERSE);
         rightMotorBack.setDirection(DcMotor.Direction.REVERSE);
         leftMotorFront.setDirection(DcMotor.Direction.REVERSE);
         leftMotorBack.setDirection(DcMotor.Direction.REVERSE);
-        arm.setDirection(DcMotor.Direction.REVERSE);
+        blockarm.setDirection(DcMotor.Direction.REVERSE);
 
         ods.enableLed(true);
-        color.enableLed(true);
+        /*color.enableLed(true);*/
 
         waitForStart();
         runtime.reset();
 
+        flipblock.setPosition(0);
+        blockright.setPosition(blockRightInit);
+        blockleft.setPosition(blockLeftInit);
+
         while (opModeIsActive()) {
-/*            boolean isFlat = gyro.getRotationFraction() < .2;*/
+  /*          boolean isFlat = gyro.getRotationFraction() < .2;*/
             boolean blockIn = ods.getLightDetected() > .05;
 
             hit.setPosition(.6);
@@ -89,18 +106,19 @@ public class TeleOpTest extends LinearOpMode {
 
             //Stuff to display for Telemetry
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Ultrasonic Sensor: ", ultra.getUltrasonicLevel());
+/*            telemetry.addData("Ultrasonic Sensor: ", ultra.getUltrasonicLevel());
             telemetry.addData("Red", color.red());
             telemetry.addData("Blue", color.blue());
-            telemetry.addData("Block In: ", blockIn);/*
             telemetry.addData("Gyro Rotation: ", gyro.getRotationFraction());
-            telemetry.addData("Is level: ", isFlat);*/
-            telemetry.addData("Touched: ", touch.isPressed());
-            /*
+            telemetry.addData("Is level: ", isFlat);
+            telemetry.addData("Touched: ", touch.isPressed());*/
+telemetry.addData("Hunter Mode: ", hunter);
             telemetry.addData("Left Front", "Ticks: " + leftMotorFront.getCurrentPosition());
             telemetry.addData("Left Back", "Ticks: " + leftMotorBack.getCurrentPosition());
             telemetry.addData("Right Front", "Ticks: " + rightMotorFront.getCurrentPosition());
-            telemetry.addData("Right Back", "Ticks: " + rightMotorBack.getCurrentPosition());*/
+            telemetry.addData("Right Back", "Ticks: " + rightMotorBack.getCurrentPosition());
+            telemetry.addData("ODS", "Light: " + ods.getLightDetected());
+            telemetry.addData("Block In: ", blockIn);
             telemetry.update();
 
             //Forward and backward moving method
@@ -182,52 +200,60 @@ public class TeleOpTest extends LinearOpMode {
             }
 
             if(gamepad1.dpad_up || gamepad2.dpad_up) {
-                arm.setPower(-1);
+                blockarm.setPower(1);
             }
-            else if ((gamepad1.dpad_down || gamepad2.dpad_down) && (touch.isPressed() == false)) {
-                arm.setPower(1);
+            else if ((gamepad1.dpad_down || gamepad2.dpad_down)/* && (touch.isPressed() == false)*/) {
+                blockarm.setPower(-1);
             }
             else {
-                arm.setPower(0);
+                blockarm.setPower(0);
             }
 
-            if(gamepad2.left_bumper && !gamepad2.right_bumper && gamepad2.right_trigger == 0) {
-                spinleft.setPower(-1.0);
-                spinright.setPower(0);
+            if(gamepad2.a && flip == false && flipTime.seconds() > .5) {
+                flipblock.setPosition(1);
+                flipTime.reset();
+                flip = true;
             }
-            else if (gamepad2.left_bumper && gamepad2.right_bumper && gamepad2.right_trigger == 0) {
-                spinleft.setPower(-1.0);
-                spinright.setPower(1.0);
+            else if (gamepad2.a && flip == true && flipTime.seconds() > .5) {
+                flipblock.setPosition(0);
+                flipTime.reset();
+                flip = false;
             }
-            else if (gamepad2.left_bumper && !gamepad2.right_bumper && gamepad2.right_trigger != 0) {
-                spinleft.setPower(-1.0);
-                spinright.setPower(-1.0);
+
+            if (gamepad2.b && block == false && blockTime.seconds() > .5 && hunter == false) {
+                blockleft.setPosition(.95);
+                blockright.setPosition(.1);
+                block = true;
+                blockTime.reset();
             }
-            else if (gamepad2.left_trigger != 0 && !gamepad2.right_bumper && gamepad2.right_trigger == 0) {
-                spinleft.setPower(1.0);
-                spinright.setPower(0);
+            else if(gamepad2.b && block == true && blockTime.seconds() > .5 && hunter == false) {
+                blockleft.setPosition(.65);
+                blockright.setPosition(.45);
+                block = false;
+                blockTime.reset();
             }
-            else if (gamepad2.left_trigger != 0 && gamepad2.right_bumper && gamepad2.right_trigger == 0) {
-                spinleft.setPower(1.0);
-                spinright.setPower(1.0);
+
+            if(gamepad2.right_bumper && hunter == false) {
+                hunter = true;
             }
-            else if (gamepad2.left_trigger != 0 && !gamepad2.left_bumper && gamepad2.right_trigger != 0) {
-                spinleft.setPower(1.0);
-                spinright.setPower(-1.0);
+            else if (gamepad2.right_bumper && hunter == true) {
+                hunter = false;
             }
-            else if (gamepad2.right_bumper && !gamepad2.left_bumper && gamepad2.left_trigger == 0) {
-                spinleft.setPower(0);
-                spinright.setPower(1.0);
+
+            if(hunter && blockIn && !gamepad2.b) {
+                blockleft.setPosition(.65);
+                blockright.setPosition(.45);
             }
-            else if (gamepad2.right_trigger != 0 && !gamepad2.left_bumper && gamepad2.left_trigger == 0) {
-                spinleft.setPower(0);
-                spinright.setPower(-1.0);
+            else if (hunter && blockIn && gamepad2.b && blockTime.seconds() > .5) {
+                blockleft.setPosition(.95);
+                blockright.setPosition(.1);
+                block = true;
+                blockTime.reset();
             }
-            else {
-                spinleft.setPower(0);
-                spinright.setPower(0);
+            else if (hunter && blockIn == false && !gamepad2.b) {
+                blockleft.setPosition(.95);
+                blockright.setPosition(.1);
             }
-            //.6 for hit for middle
         }
     }
 }
