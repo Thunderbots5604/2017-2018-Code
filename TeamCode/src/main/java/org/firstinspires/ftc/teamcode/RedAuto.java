@@ -97,7 +97,7 @@ public class RedAuto extends LinearOpMode {
             hit.setPosition(1);
         }
         else {
-            telemetry.addLine("Is not Blue");
+            telemetry.addLine("Is not Red");
             telemetry.update();
             sleep(1000);
             hit.setPosition(0);

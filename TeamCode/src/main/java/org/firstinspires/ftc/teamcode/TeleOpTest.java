@@ -94,6 +94,8 @@ public class TeleOpTest extends LinearOpMode {
         flipblock.setPosition(0);
         blockright.setPosition(blockRightInit);
         blockleft.setPosition(blockLeftInit);
+        hit.setPosition(.6);
+        lever.setPosition(.25);
 
         while (opModeIsActive()) {
   /*          boolean isFlat = gyro.getRotationFraction() < .2;*/
