@@ -54,10 +54,8 @@ public class TeleOpTest extends LinearOpMode {
         Servo blockleft = null;
 
         OpticalDistanceSensor ods = null;
-        /*
-        Gyroscope gyro = null;*//*
         TouchSensor touch = null;
-        ColorSensor color = null;*/
+        ColorSensor color = null;
 
         leftMotorFront = hardwareMap.dcMotor.get("left_drive_front");
         leftMotorBack = hardwareMap.dcMotor.get("left_drive_back");
@@ -69,10 +67,10 @@ public class TeleOpTest extends LinearOpMode {
         relicarm = hardwareMap.dcMotor.get("relic_arm");
 
         ods = hardwareMap.opticalDistanceSensor.get("ods");
-/*        gyro = hardwareMap.gyroScope.get("gyro");
+/*        gyro = hardwareMap.gyroScope.get("gyro");*/
         touch = hardwareMap.touchSensor.get("touch");
-        ultra = hardwareMap.ultrasonicSensor.get("ultra");
-        color = hardwareMap.colorSensor.get("color"); */
+/*        ultra = hardwareMap.ultrasonicSensor.get("ultra");*/
+        color = hardwareMap.colorSensor.get("color");
 
         lever = hardwareMap.servo.get("lever");
         hit = hardwareMap.servo.get("hit");
@@ -101,18 +99,16 @@ public class TeleOpTest extends LinearOpMode {
   /*          boolean isFlat = gyro.getRotationFraction() < .2;*/
             boolean blockIn = ods.getLightDetected() > .05;
 
-            hit.setPosition(.6);
-            lever.setPosition(1.0);
 
             //Stuff to display for Telemetry
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-/*            telemetry.addData("Ultrasonic Sensor: ", ultra.getUltrasonicLevel());
+/*            telemetry.addData("Ultrasonic Sensor: ", ultra.getUltrasonicLevel());*/
             telemetry.addData("Red", color.red());
             telemetry.addData("Blue", color.blue());
-            telemetry.addData("Gyro Rotation: ", gyro.getRotationFraction());
-            telemetry.addData("Is level: ", isFlat);
-            telemetry.addData("Touched: ", touch.isPressed());*/
-telemetry.addData("Hunter Mode: ", hunter);
+/*            telemetry.addData("Gyro Rotation: ", gyro.getRotationFraction());
+            telemetry.addData("Is level: ", isFlat);*/
+            telemetry.addData("Touched: ", touch.isPressed());
+/*            telemetry.addData("Hunter Mode: ", hunter);*/
             telemetry.addData("Left Front", "Ticks: " + leftMotorFront.getCurrentPosition());
             telemetry.addData("Left Back", "Ticks: " + leftMotorBack.getCurrentPosition());
             telemetry.addData("Right Front", "Ticks: " + rightMotorFront.getCurrentPosition());
@@ -202,7 +198,7 @@ telemetry.addData("Hunter Mode: ", hunter);
             if(gamepad1.dpad_up || gamepad2.dpad_up) {
                 blockarm.setPower(1);
             }
-            else if ((gamepad1.dpad_down || gamepad2.dpad_down)/* && (touch.isPressed() == false)*/) {
+            else if ((gamepad1.dpad_down || gamepad2.dpad_down) && (touch.isPressed() == false)) {
                 blockarm.setPower(-1);
             }
             else {
@@ -220,39 +216,49 @@ telemetry.addData("Hunter Mode: ", hunter);
                 flip = false;
             }
 
-            if (gamepad2.b && block == false && blockTime.seconds() > .5 && hunter == false) {
+            if (gamepad2.b && block == false && blockTime.seconds() > .5 /*&& hunter == false*/) {
                 blockleft.setPosition(.95);
                 blockright.setPosition(.1);
                 block = true;
                 blockTime.reset();
             }
-            else if(gamepad2.b && block == true && blockTime.seconds() > .5 && hunter == false) {
+            else if(gamepad2.b && block == true && blockTime.seconds() > .5/* && hunter == false*/) {
                 blockleft.setPosition(.65);
                 blockright.setPosition(.45);
                 block = false;
                 blockTime.reset();
             }
 
-            if(gamepad2.right_bumper && hunter == false) {
+/*            if(gamepad2.right_bumper && hunter == false) {
                 hunter = true;
             }
             else if (gamepad2.right_bumper && hunter == true) {
                 hunter = false;
-            }
+            }*/
 
-            if(hunter && blockIn && !gamepad2.b) {
+            if(/*hunter && */blockIn && !gamepad2.b) {
                 blockleft.setPosition(.65);
                 blockright.setPosition(.45);
             }
-            else if (hunter && blockIn && gamepad2.b && blockTime.seconds() > .5) {
+            else if (/*hunter && */blockIn && gamepad2.b && blockTime.seconds() > .5) {
                 blockleft.setPosition(.95);
                 blockright.setPosition(.1);
                 block = true;
                 blockTime.reset();
             }
-            else if (hunter && blockIn == false && !gamepad2.b) {
+/*            else if (hunter && blockIn == false && !gamepad2.b) {
                 blockleft.setPosition(.95);
                 blockright.setPosition(.1);
+            }*/
+
+            if (gamepad2.dpad_left) {
+                relicarm.setPower(1);
+            }
+            else if (gamepad2.dpad_right) {
+                relicarm.setPower(-1);
+            }
+            else {
+                relicarm.setPower(0);
             }
         }
     }
