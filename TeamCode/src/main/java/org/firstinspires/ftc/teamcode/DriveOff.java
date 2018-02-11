@@ -1,18 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import java.lang.Math;
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="DriveOffRampTimeAutonomous", group="Autonomous")
-public class Autonomous extends LinearOpMode {
+@Autonomous(name="DriveOff", group="Autonomous")
+public class DriveOff extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -20,6 +18,8 @@ public class Autonomous extends LinearOpMode {
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+        double blockLeftInit = .75;
+        double blockRightInit = .25;
 
         DcMotor leftMotorFront = null;
         DcMotor leftMotorBack = null;
@@ -38,15 +38,6 @@ public class Autonomous extends LinearOpMode {
         leftMotorFront.setDirection(DcMotor.Direction.REVERSE);
         leftMotorBack.setDirection(DcMotor.Direction.REVERSE);
 
-/*        leftMotorFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotorBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotorFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotorBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        leftMotorFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftMotorBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotorFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotorBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);*/
 
         waitForStart();
         runtime.reset();
@@ -56,7 +47,7 @@ public class Autonomous extends LinearOpMode {
         leftMotorFront.setPower(-.5);
         leftMotorBack.setPower(-.5);
         runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < 1.0)) {
+        while (opModeIsActive() && (runtime.seconds() < 2.5)) {
             telemetry.addLine("Moving forward");
             telemetry.update();
         }
@@ -66,5 +57,10 @@ public class Autonomous extends LinearOpMode {
         leftMotorBack.setPower(0);
         rightMotorFront.setPower(0);
         rightMotorBack.setPower(0);
+        
+        telemetry.addLine("Done ;)");
+        telemetry.update();
+        sleep(1000);
+
     }
 }

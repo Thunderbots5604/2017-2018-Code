@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Color;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -34,8 +35,8 @@ public class TeleOpTest extends LinearOpMode {
 
         boolean flip = false;
         boolean block = false;
-
-        boolean hunter = false;
+        boolean quarterSpeed = false;
+        double quarterMultiplier = .25;
 
         DcMotor leftMotorFront = null;
         DcMotor leftMotorBack = null;
@@ -53,9 +54,13 @@ public class TeleOpTest extends LinearOpMode {
         Servo blockright = null;
         Servo blockleft = null;
 
+        CRServo grabber = null;
+
         OpticalDistanceSensor ods = null;
         TouchSensor touch = null;
+        TouchSensor relictouch = null;
         ColorSensor color = null;
+        GyroSensor gyroSensor = null;
 
         leftMotorFront = hardwareMap.dcMotor.get("left_drive_front");
         leftMotorBack = hardwareMap.dcMotor.get("left_drive_back");
@@ -67,10 +72,10 @@ public class TeleOpTest extends LinearOpMode {
         relicarm = hardwareMap.dcMotor.get("relic_arm");
 
         ods = hardwareMap.opticalDistanceSensor.get("ods");
-/*        gyro = hardwareMap.gyroScope.get("gyro");*/
         touch = hardwareMap.touchSensor.get("touch");
-/*        ultra = hardwareMap.ultrasonicSensor.get("ultra");*/
+        relictouch = hardwareMap.touchSensor.get("relic_touch");
         color = hardwareMap.colorSensor.get("color");
+        grabber = hardwareMap.crservo.get("grabber");
 
         lever = hardwareMap.servo.get("lever");
         hit = hardwareMap.servo.get("hit");
@@ -78,6 +83,7 @@ public class TeleOpTest extends LinearOpMode {
         blockright = hardwareMap.servo.get("block_right");
         blockleft = hardwareMap.servo.get("block_left");
 
+        gyroSensor = hardwareMap.get(ModernRoboticsI2cGyro.class, "gyro_sensor");
 
         rightMotorFront.setDirection(DcMotor.Direction.REVERSE);
         rightMotorBack.setDirection(DcMotor.Direction.REVERSE);
@@ -86,7 +92,8 @@ public class TeleOpTest extends LinearOpMode {
         blockarm.setDirection(DcMotor.Direction.REVERSE);
 
         ods.enableLed(true);
-        /*color.enableLed(true);*/
+        color.enableLed(true);
+        gyroSensor.calibrate();
 
         waitForStart();
         runtime.reset();
@@ -104,91 +111,150 @@ public class TeleOpTest extends LinearOpMode {
 
             //Stuff to display for Telemetry
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-/*            telemetry.addData("Ultrasonic Sensor: ", ultra.getUltrasonicLevel());*/
             telemetry.addData("Red", color.red());
             telemetry.addData("Blue", color.blue());
-/*            telemetry.addData("Gyro Rotation: ", gyro.getRotationFraction());
-            telemetry.addData("Is level: ", isFlat);*/
-            telemetry.addData("Touched: ", touch.isPressed());
-/*            telemetry.addData("Hunter Mode: ", hunter);*/
+            telemetry.addData("Lever", lever.getPosition());
+            telemetry.addData("Hit", hit.getPosition());
             telemetry.addData("Left Front", "Ticks: " + leftMotorFront.getCurrentPosition());
             telemetry.addData("Left Back", "Ticks: " + leftMotorBack.getCurrentPosition());
             telemetry.addData("Right Front", "Ticks: " + rightMotorFront.getCurrentPosition());
             telemetry.addData("Right Back", "Ticks: " + rightMotorBack.getCurrentPosition());
             telemetry.addData("ODS", "Light: " + ods.getLightDetected());
             telemetry.addData("Block In: ", blockIn);
+            telemetry.addData("Quarter Speed:", quarterSpeed);
             telemetry.update();
 
+            if(gamepad1.left_trigger != 0) {
+                quarterSpeed = true;
+            }
+            else {
+                quarterSpeed = false;
+            }
+
             //Forward and backward moving method
-            if(gamepad1.left_stick_y != 0 && gamepad1.left_stick_x == 0 && gamepad1.right_stick_x == 0) {
+            if (gamepad1.left_stick_y != 0 && gamepad1.left_stick_x == 0 && gamepad1.right_stick_x == 0 && !quarterSpeed) {
                 rightMotorFront.setPower(-gamepad1.left_stick_y);
                 rightMotorBack.setPower(-gamepad1.left_stick_y);
 
                 leftMotorFront.setPower(gamepad1.left_stick_y);
                 leftMotorBack.setPower(gamepad1.left_stick_y);
-            }
-            else if(gamepad1.left_stick_y < 0 && gamepad1.left_stick_x > 0 && gamepad1.right_stick_x == 0) {
+            } else if (gamepad1.left_stick_y < 0 && gamepad1.left_stick_x > 0 && gamepad1.right_stick_x == 0 && !quarterSpeed) {
                 rightMotorFront.setPower(-gamepad1.left_stick_y - Math.abs(gamepad1.left_stick_x));
                 rightMotorBack.setPower(-gamepad1.left_stick_y);
 
                 leftMotorFront.setPower(gamepad1.left_stick_y);
                 leftMotorBack.setPower(gamepad1.left_stick_y + Math.abs(gamepad1.left_stick_x));
-            }
-            else if (gamepad1.left_stick_y == 0 && gamepad1.left_stick_x != 0 && gamepad1.right_stick_x == 0) {
+            } else if (gamepad1.left_stick_y == 0 && gamepad1.left_stick_x != 0 && gamepad1.right_stick_x == 0 && !quarterSpeed) {
                 leftMotorFront.setPower(-gamepad1.left_stick_x);
                 rightMotorFront.setPower(-gamepad1.left_stick_x);
 
                 leftMotorBack.setPower(gamepad1.left_stick_x);
                 rightMotorBack.setPower(gamepad1.left_stick_x);
-            }
-            else if(gamepad1.left_stick_y > 0 && gamepad1.left_stick_x > 0 && gamepad1.right_stick_x == 0) {
+            } else if (gamepad1.left_stick_y > 0 && gamepad1.left_stick_x > 0 && gamepad1.right_stick_x == 0 && !quarterSpeed) {
                 rightMotorFront.setPower(-gamepad1.left_stick_y);
                 rightMotorBack.setPower(-gamepad1.left_stick_y + Math.abs(gamepad1.left_stick_x));
 
                 leftMotorFront.setPower(gamepad1.left_stick_y - Math.abs(gamepad1.left_stick_x));
                 leftMotorBack.setPower(gamepad1.left_stick_y);
-            }
-            else if(gamepad1.left_stick_y > 0 && gamepad1.left_stick_x < 0 && gamepad1.right_stick_x == 0) {
+            } else if (gamepad1.left_stick_y > 0 && gamepad1.left_stick_x < 0 && gamepad1.right_stick_x == 0 && !quarterSpeed) {
                 rightMotorFront.setPower(-gamepad1.left_stick_y + Math.abs(gamepad1.left_stick_x));
                 rightMotorBack.setPower(-gamepad1.left_stick_y);
 
                 leftMotorFront.setPower(gamepad1.left_stick_y);
                 leftMotorBack.setPower(gamepad1.left_stick_y - Math.abs(gamepad1.left_stick_x));
-            }
-            else if(gamepad1.left_stick_y < 0 && gamepad1.left_stick_x < 0 && gamepad1.right_stick_x == 0) {
+            } else if (gamepad1.left_stick_y < 0 && gamepad1.left_stick_x < 0 && gamepad1.right_stick_x == 0 && !quarterSpeed) {
                 rightMotorFront.setPower(-gamepad1.left_stick_y);
                 rightMotorBack.setPower(-gamepad1.left_stick_y - Math.abs(gamepad1.left_stick_x));
 
                 leftMotorFront.setPower(gamepad1.left_stick_y + Math.abs(gamepad1.left_stick_x));
                 leftMotorBack.setPower(gamepad1.left_stick_y);
-            }
-            else if (gamepad1.left_stick_y !=0  && gamepad1.right_stick_x > 0) {
+            } else if (gamepad1.left_stick_y != 0 && gamepad1.right_stick_x > 0 && !quarterSpeed) {
                 leftMotorFront.setPower(gamepad1.left_stick_y);
                 leftMotorBack.setPower(gamepad1.left_stick_y);
 
                 rightMotorFront.setPower(0);
                 rightMotorBack.setPower(0);
-            }
-            else if (gamepad1.left_stick_y != 0 && gamepad1.right_stick_x < 0) {
+            } else if (gamepad1.left_stick_y != 0 && gamepad1.right_stick_x < 0 && !quarterSpeed) {
                 leftMotorFront.setPower(0);
                 leftMotorBack.setPower(0);
 
                 rightMotorFront.setPower(-gamepad1.left_stick_y);
                 rightMotorBack.setPower(-gamepad1.left_stick_y);
-            }
-            else if(gamepad1.right_stick_x > 0) {
+            } else if (gamepad1.right_stick_x > 0 && !quarterSpeed) {
+                leftMotorFront.setPower(-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x));
+                leftMotorBack.setPower(-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x));
+
+                rightMotorFront.setPower(-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x));
+                rightMotorBack.setPower(-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x));
+            } else if (gamepad1.right_stick_x < 0 && !quarterSpeed) {
                 leftMotorFront.setPower(-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x));
                 leftMotorBack.setPower(-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x));
 
                 rightMotorFront.setPower(-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x));
                 rightMotorBack.setPower(-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x));
             }
-            else if(gamepad1.right_stick_x < 0) {
-                leftMotorFront.setPower(-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x));
-                leftMotorBack.setPower(-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x));
 
-                rightMotorFront.setPower(-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x));
-                rightMotorBack.setPower(-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x));
+            //Forward and backward moving method
+            else if (gamepad1.left_stick_y != 0 && gamepad1.left_stick_x == 0 && gamepad1.right_stick_x == 0 && quarterSpeed) {
+                rightMotorFront.setPower(quarterMultiplier * -gamepad1.left_stick_y);
+                rightMotorBack.setPower(quarterMultiplier * -gamepad1.left_stick_y);
+
+                leftMotorFront.setPower(quarterMultiplier * gamepad1.left_stick_y);
+                leftMotorBack.setPower(quarterMultiplier * gamepad1.left_stick_y);
+            } else if (gamepad1.left_stick_y < 0 && gamepad1.left_stick_x > 0 && gamepad1.right_stick_x == 0 && quarterSpeed) {
+                rightMotorFront.setPower(quarterMultiplier * (-gamepad1.left_stick_y - Math.abs(gamepad1.left_stick_x)));
+                rightMotorBack.setPower(quarterMultiplier * -gamepad1.left_stick_y);
+
+                leftMotorFront.setPower(quarterMultiplier * gamepad1.left_stick_y);
+                leftMotorBack.setPower(quarterMultiplier * gamepad1.left_stick_y + Math.abs(gamepad1.left_stick_x));
+            } else if (gamepad1.left_stick_y == 0 && gamepad1.left_stick_x != 0 && gamepad1.right_stick_x == 0 && quarterSpeed) {
+                leftMotorFront.setPower(quarterMultiplier * -gamepad1.left_stick_x);
+                rightMotorFront.setPower(quarterMultiplier * -gamepad1.left_stick_x);
+
+                leftMotorBack.setPower(quarterMultiplier * gamepad1.left_stick_x);
+                rightMotorBack.setPower(quarterMultiplier * gamepad1.left_stick_x);
+            } else if (gamepad1.left_stick_y > 0 && gamepad1.left_stick_x > 0 && gamepad1.right_stick_x == 0 && quarterSpeed) {
+                rightMotorFront.setPower(quarterMultiplier * -gamepad1.left_stick_y);
+                rightMotorBack.setPower(quarterMultiplier * (-gamepad1.left_stick_y + Math.abs(gamepad1.left_stick_x)));
+
+                leftMotorFront.setPower(quarterMultiplier * (gamepad1.left_stick_y - Math.abs(gamepad1.left_stick_x)));
+                leftMotorBack.setPower(quarterMultiplier * gamepad1.left_stick_y);
+            } else if (gamepad1.left_stick_y > 0 && gamepad1.left_stick_x < 0 && gamepad1.right_stick_x == 0 && quarterSpeed) {
+                rightMotorFront.setPower(quarterMultiplier * (-gamepad1.left_stick_y + Math.abs(gamepad1.left_stick_x)));
+                rightMotorBack.setPower(quarterMultiplier * -gamepad1.left_stick_y);
+
+                leftMotorFront.setPower(quarterMultiplier * gamepad1.left_stick_y);
+                leftMotorBack.setPower(quarterMultiplier * (gamepad1.left_stick_y - Math.abs(gamepad1.left_stick_x)));
+            } else if (gamepad1.left_stick_y < 0 && gamepad1.left_stick_x < 0 && gamepad1.right_stick_x == 0 && quarterSpeed) {
+                rightMotorFront.setPower(quarterMultiplier * -gamepad1.left_stick_y);
+                rightMotorBack.setPower(quarterMultiplier * (-gamepad1.left_stick_y - Math.abs(gamepad1.left_stick_x)));
+
+                leftMotorFront.setPower(quarterMultiplier * (gamepad1.left_stick_y + Math.abs(gamepad1.left_stick_x)));
+                leftMotorBack.setPower(quarterMultiplier * gamepad1.left_stick_y);
+            } else if (gamepad1.left_stick_y != 0 && gamepad1.right_stick_x > 0 && quarterSpeed) {
+                leftMotorFront.setPower(quarterMultiplier * gamepad1.left_stick_y);
+                leftMotorBack.setPower(quarterMultiplier * gamepad1.left_stick_y);
+
+                rightMotorFront.setPower(0);
+                rightMotorBack.setPower(0);
+            } else if (gamepad1.left_stick_y != 0 && gamepad1.right_stick_x < 0 && quarterSpeed) {
+                leftMotorFront.setPower(0);
+                leftMotorBack.setPower(0);
+
+                rightMotorFront.setPower(quarterMultiplier * -gamepad1.left_stick_y);
+                rightMotorBack.setPower(quarterMultiplier * -gamepad1.left_stick_y);
+            } else if (gamepad1.right_stick_x > 0 && quarterSpeed) {
+                leftMotorFront.setPower(quarterMultiplier * (-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x)));
+                leftMotorBack.setPower(quarterMultiplier * (-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x)));
+
+                rightMotorFront.setPower(quarterMultiplier * (-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x)));
+                rightMotorBack.setPower(quarterMultiplier * (-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x)));
+            } else if (gamepad1.right_stick_x < 0 && quarterSpeed) {
+                leftMotorFront.setPower(quarterMultiplier * (-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x)));
+                leftMotorBack.setPower(quarterMultiplier * (-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x)));
+
+                rightMotorFront.setPower(quarterMultiplier * (-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x)));
+                rightMotorBack.setPower(quarterMultiplier * (-gamepad1.right_stick_x * Math.abs(gamepad1.right_stick_x) * Math.abs(gamepad1.right_stick_x)));
             }
             else {
                 leftMotorFront.setPower(0);
@@ -197,70 +263,56 @@ public class TeleOpTest extends LinearOpMode {
                 rightMotorBack.setPower(0);
             }
 
-            if(gamepad1.dpad_up || gamepad2.dpad_up) {
+            if (gamepad1.dpad_up || gamepad2.dpad_up) {
                 blockarm.setPower(1);
-            }
-            else if ((gamepad1.dpad_down || gamepad2.dpad_down) && (touch.isPressed() == false)) {
+            } else if ((gamepad1.dpad_down || gamepad2.dpad_down) && (touch.isPressed() == false)) {
                 blockarm.setPower(-1);
-            }
-            else {
+            } else {
                 blockarm.setPower(0);
             }
 
-            if(gamepad2.a && flip == false && flipTime.seconds() > .5) {
+            if (gamepad2.a && flip == false && flipTime.seconds() > .5) {
                 flipblock.setPosition(1);
                 flipTime.reset();
                 flip = true;
-            }
-            else if (gamepad2.a && flip == true && flipTime.seconds() > .5) {
+            } else if (gamepad2.a && flip == true && flipTime.seconds() > .5) {
                 flipblock.setPosition(0);
                 flipTime.reset();
                 flip = false;
             }
+            if (gamepad2.right_bumper) {
+                grabber.setPower(1.0);
+            } else if (gamepad2.left_bumper) {
+                grabber.setPower(-1.0);
+            } else {
+                grabber.setPower(0);
+            }
 
-            if (gamepad2.b && block == false && blockTime.seconds() > .5 /*&& hunter == false*/) {
+            if (gamepad2.b && block == false && blockTime.seconds() > .5) {
                 blockleft.setPosition(.95);
                 blockright.setPosition(.1);
                 block = true;
                 blockTime.reset();
-            }
-            else if(gamepad2.b && block == true && blockTime.seconds() > .5/* && hunter == false*/) {
-                blockleft.setPosition(.65);
-                blockright.setPosition(.45);
+            } else if (gamepad2.b && block == true && blockTime.seconds() > .5/* && hunter == false*/) {
+                blockleft.setPosition(.55);
+                blockright.setPosition(.35);
                 block = false;
                 blockTime.reset();
             }
 
-/*            if(gamepad2.right_bumper && hunter == false) {
-                hunter = true;
-            }
-            else if (gamepad2.right_bumper && hunter == true) {
-                hunter = false;
-            }*/
-
-            if(/*hunter && */blockIn && !gamepad2.b) {
-                blockleft.setPosition(.65);
-                blockright.setPosition(.45);
-            }
-            else if (/*hunter && */blockIn && gamepad2.b && blockTime.seconds() > .5) {
-                blockleft.setPosition(.95);
-                blockright.setPosition(.1);
-                block = true;
-                blockTime.reset();
-            }
-/*            else if (hunter && blockIn == false && !gamepad2.b) {
-                blockleft.setPosition(.95);
-                blockright.setPosition(.1);
-            }*/
-
-            if (gamepad2.dpad_left) {
-                relicarm.setPower(1);
-            }
-            else if (gamepad2.dpad_right) {
+            if (gamepad2.dpad_left ) {
                 relicarm.setPower(-1);
-            }
-            else {
+            } else if (gamepad2.dpad_right && (relictouch.isPressed() == false)) {
+                relicarm.setPower(1);
+            } else {
                 relicarm.setPower(0);
+            }
+
+            if (gamepad2.left_stick_y != 0 && lever.getPosition() >= 0 && lever.getPosition() <= 1) {
+                lever.setPosition(lever.getPosition() + (.0075 * gamepad2.left_stick_y));
+            }
+            if (gamepad2.right_stick_x != 0 && hit.getPosition() >= 0 && hit.getPosition() <= 1) {
+                hit.setPosition(hit.getPosition() + (.01 * -gamepad2.right_stick_x));
             }
         }
     }

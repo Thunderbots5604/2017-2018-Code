@@ -28,9 +28,6 @@ public class RedAuto extends LinearOpMode {
         DcMotor rightMotorFront = null;
         DcMotor rightMotorBack = null;
 
-        DcMotor relicarm = null;
-        DcMotor blockarm = null;
-
         Servo lever = null;
         Servo hit = null;
 
@@ -38,8 +35,6 @@ public class RedAuto extends LinearOpMode {
         Servo blockleft = null;
         Servo flipblock = null;
 
-        OpticalDistanceSensor ods = null;
-        TouchSensor touch = null;
         ColorSensor color = null;
 
         leftMotorFront = hardwareMap.dcMotor.get("left_drive_front");
@@ -48,13 +43,6 @@ public class RedAuto extends LinearOpMode {
         rightMotorFront = hardwareMap.dcMotor.get("right_drive_front");
         rightMotorBack = hardwareMap.dcMotor.get("right_drive_back");
 
-        blockarm = hardwareMap.dcMotor.get("block_arm");
-        relicarm = hardwareMap.dcMotor.get("relic_arm");
-
-        ods = hardwareMap.opticalDistanceSensor.get("ods");
-/*        gyro = hardwareMap.gyroScope.get("gyro");*/
-        touch = hardwareMap.touchSensor.get("touch");
-/*        ultra = hardwareMap.ultrasonicSensor.get("ultra");*/
         color = hardwareMap.colorSensor.get("color");
 
         lever = hardwareMap.servo.get("lever");
@@ -68,7 +56,6 @@ public class RedAuto extends LinearOpMode {
         rightMotorBack.setDirection(DcMotor.Direction.REVERSE);
         leftMotorFront.setDirection(DcMotor.Direction.REVERSE);
         leftMotorBack.setDirection(DcMotor.Direction.REVERSE);
-        blockarm.setDirection(DcMotor.Direction.REVERSE);
 
         flipblock.setPosition(0);
         blockright.setPosition(blockRightInit);
@@ -76,12 +63,16 @@ public class RedAuto extends LinearOpMode {
 
         //.65 lever (higher equals down) .6 hit (higher equals more to the color sensor)
 
-        lever.setPosition(.75);
-        hit.setPosition(.6);
+        color.enableLed(true);
         waitForStart();
         runtime.reset();
-        lever.setPosition(.75);
         hit.setPosition(.6);
+        sleep(1000);
+        lever.setPosition(.775);
+        hit.setPosition(.6);
+        flipblock.setPosition(0);
+        blockright.setPosition(blockRightInit);
+        blockleft.setPosition(blockLeftInit);
 
         sleep(1000);
         while(color.red() == 0 || color.blue() == 0) {
@@ -89,7 +80,7 @@ public class RedAuto extends LinearOpMode {
             sleep(250);
         }
 
-        if(color.blue() + 1 < (color.red())) {
+        if((color.blue() + 1) < (color.red())) {
 
             telemetry.addLine("Is red");
             telemetry.update();
@@ -105,6 +96,7 @@ public class RedAuto extends LinearOpMode {
         sleep(1000);
 
         hit.setPosition(.6);
+        sleep(1000);
         lever.setPosition(.3);
 
         sleep(1000);
